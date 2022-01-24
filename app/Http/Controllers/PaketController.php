@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Paket;
 use App\Http\Requests\StorePaketRequest;
 use App\Http\Requests\UpdatePaketRequest;
+use App\Models\Outlet;
+use Illuminate\Http\Request;
 
 class PaketController extends Controller
 {
@@ -15,7 +17,10 @@ class PaketController extends Controller
      */
     public function index()
     {
-        //
+        return view('paket.index', [
+            'paket' => Paket::all(),
+            'outlet' => Outlet::all()
+        ]);
     }
 
     /**
@@ -34,9 +39,22 @@ class PaketController extends Controller
      * @param  \App\Http\Requests\StorePaketRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StorePaketRequest $request)
+    public function store(Request $request)
     {
-        //
+        $validasiData = $request->validate([
+            'id_outlet' => 'required',
+            'harga' => 'required',
+            'nama_paket' => 'required',
+            'jenis' => 'required',
+        ]);
+
+        $paket = Paket::create($validasiData);
+
+        if ( $paket ) {
+            return redirect('paket')->with('success', 'Data paket telah ditambahkan');
+        } else {
+            return redirect('paket')->with('failed', 'Data gagal diinputkan');
+        }
     }
 
     /**
@@ -68,9 +86,24 @@ class PaketController extends Controller
      * @param  \App\Models\Paket  $paket
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePaketRequest $request, Paket $paket)
+    public function update(Request $request, $id)
     {
-        //
+        $paket = Paket::findOrFail($id);
+
+        $rules = $request->validate([
+            'id_outlet' => 'required',
+            'harga' => 'required',
+            'nama_paket' => 'required',
+            'jenis' => 'required|string'
+        ]);
+
+        $update = $paket->find($id)->update($rules);
+
+        if ( $update ) {
+            return redirect('paket')->with('success', 'Data paket telah berhasil di-update');
+        } else {
+            return redirect('paket')->with('error', 'Data paket gagal di-update');
+        }
     }
 
     /**
@@ -79,8 +112,16 @@ class PaketController extends Controller
      * @param  \App\Models\Paket  $paket
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Paket $paket)
+    public function destroy($id)
     {
-        //
+        $paket = Paket::findOrFail($id);
+
+        $paket->find($id)->delete();
+
+        if ( $paket ) {
+            return redirect('paket')->with('success', 'Data paket telah terhapus');
+        } else {
+            return redirect('paket')->with('error', 'Data paket gagal dihapus');
+        }
     }
 }

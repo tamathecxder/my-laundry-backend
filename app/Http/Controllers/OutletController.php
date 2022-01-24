@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Outlet;
 use App\Http\Requests\StoreOutletRequest;
 use App\Http\Requests\UpdateOutletRequest;
+use Illuminate\Http\Request;
 
 class OutletController extends Controller
 {
@@ -15,7 +16,9 @@ class OutletController extends Controller
      */
     public function index()
     {
-        //
+        return view('outlet.index', [
+            'outlet' => Outlet::all()
+        ]);
     }
 
     /**
@@ -34,9 +37,19 @@ class OutletController extends Controller
      * @param  \App\Http\Requests\StoreOutletRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreOutletRequest $request)
+    public function store(Request $request)
     {
-        //
+        $validate = $request->validate([
+            'nama' => 'required',
+            'alamat' => 'required|min:6|max:600',
+            'tlp' => 'required|numeric',
+        ]);
+
+        $inputOutlet = Outlet::create($validate);
+
+        if ($inputOutlet) return redirect('outlet')->with('success', 'Data outlet telah berhasil ditambahkan');
+
+
     }
 
     /**
@@ -47,7 +60,7 @@ class OutletController extends Controller
      */
     public function show(Outlet $outlet)
     {
-        //
+
     }
 
     /**
@@ -68,9 +81,18 @@ class OutletController extends Controller
      * @param  \App\Models\Outlet  $outlet
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateOutletRequest $request, Outlet $outlet)
+    public function update(Request $request, $id)
     {
-        //
+        $outlet = Outlet::findOrFail($id);
+        $rules = $request->validate([
+            'nama' => 'required',
+            'alamat' => 'required|min:6|max:600',
+            'tlp' => 'required|numeric',
+        ]);
+
+        $update = $outlet->find($id)->update($rules);
+
+        if ($update) return redirect('outlet')->with('success', 'Data outlet sukses di-update');
     }
 
     /**
@@ -79,8 +101,16 @@ class OutletController extends Controller
      * @param  \App\Models\Outlet  $outlet
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Outlet $outlet)
+    public function destroy($id)
     {
-        //
+        $hapusOutlet = Outlet::findOrFail($id);
+
+        $hapusOutlet->find($id)->delete();
+
+        if ( $hapusOutlet ) {
+            return redirect('outlet')->with('success', 'Data outlet telah berhasil dihapus');
+        } else {
+            return redirect('outlet')->with('failed', 'Data outlet gagal dihapus');
+        }
     }
 }

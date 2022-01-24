@@ -24,7 +24,10 @@ class StorePaketRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'jenis' => 'required',
+            'id_outlet' => 'required',
+            'nama_paket' => 'required',
+            'harga' => 'required|numeric',
         ];
     }
 }

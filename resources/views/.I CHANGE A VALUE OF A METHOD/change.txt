@@ -1,0 +1,1 @@
+-- Mengganti value strict pada database.php pada folder config dengan line connection
